@@ -1,0 +1,225 @@
+import event, time, cyberpi, mbuild, mbot2
+
+kp = 0
+vitesse = 0
+vitesse_gauche = 0
+vitesse_droite = 0
+grand = 0
+
+i = 0
+
+def chercher_zone():
+    global i
+    while i == 0:
+        while mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.forward(25)
+    
+        while mbuild.smart_camera.detect_sign_location(1, 'left', 1) or mbuild.smart_camera.detect_sign_location(1, 'left', 1) and mbuild.smart_camera.detect_sign_location(1, 'middle', 1) or mbuild.smart_camera.detect_sign_location(1, 'left', 1) and mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.turn_left(7)
+
+        while mbuild.smart_camera.detect_sign_location(1, 'right', 1) or mbuild.smart_camera.detect_sign_location(1, 'right', 1) and mbuild.smart_camera.detect_sign_location(1, 'middle', 1) or mbuild.smart_camera.detect_sign_location(1, 'right', 1) and mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.turn_right(7)
+        
+
+        if mbuild.smart_camera.detect_sign_location(1, 'middle', 1):
+            mbot2.straight(13)
+            if i == 0:
+                mbot2.servo_set(0,"S3")
+                time.sleep(.5)
+                for i in range(15):
+                    mbot2.forward(100, .05)
+                    mbot2.forward(-110, .05)
+                mbot2.forward(-110, .05)
+                i += 1
+    mbot2.EM_stop("ALL")
+    
+def find_around_me():
+    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
+        for i in range(4):
+            mbot2.turn(20)
+            rgb_sensor = mbuild.quad_rgb_sensor.get_line_sta("all", 1)
+            if rgb_sensor != 0:
+                return "sur la ligne"
+                
+        mbot2.turn(-80)
+        for i in range(4):
+            mbot2.turn(-20)
+            rgb_sensor =  mbuild.quad_rgb_sensor.get_line_sta("all", 1)
+            if rgb_sensor != 0:
+                return "sur la ligne"
+                        
+        mbot2.turn(80)
+        return "pas vu la ligne"
+    else:
+        return "sur la ligne"
+
+#script qui permet d'afficher a l'écran une interface utilisateur
+@event.start
+def on_start():
+    global kp, vitesse, vitesse_gauche, vitesse_droite
+    cyberpi.console.println("B pour GO")
+    cyberpi.console.println("A pour STOP")
+
+#script qui permet de reinitialiser les variables et arrêter le robot
+@event.is_press('a')
+def is_joy_press():
+    global kp, vitesse, vitesse_gauche, vitesse_droite, grand
+    grand = 0
+    cyberpi.stop_other()
+    mbot2.drive_power(0, 0)
+    cyberpi.led.off("all")
+    cyberpi.console.clear()
+
+#script du suiveur de ligne
+@event.is_press('b')
+def is_joy_press1():
+    global kp, vitesse, vitesse_gauche, vitesse_droite, grand
+    cyberpi.stop_other()
+    mbuild.quad_rgb_sensor.set_led_color("blue", 1)
+
+    kp = 0.2
+    while True:
+        angle = -cyberpi.get_pitch() #récuperation de l'angle
+        if angle < -9:
+             vitesse = 30
+             cyberpi.led.on(1, 208, 194, "all")
+        elif angle > 9:
+             vitesse = 15
+             cyberpi.led.on(170, 255, 1, "all")
+        elif angle in [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]:
+             vitesse = 20
+        
+        if mbuild.quad_rgb_sensor.get_green_sta("all", 1) in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] or mbuild.quad_rgb_sensor.get_cyan_sta("all", 1) in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]:
+            grand = 0
+            if mbuild.quad_rgb_sensor.get_green_sta("all", 1) in [1, 2, 3, 7] or mbuild.quad_rgb_sensor.get_cyan_sta("all", 1) in [1, 2, 3, 7]:
+                mbot2.drive_power(0, 0)
+                mbot2.straight(-.5)
+                
+                
+                if mbuild.quad_rgb_sensor.get_green_sta("all", 1) in [4, 8, 12, 14] or mbuild.quad_rgb_sensor.get_cyan_sta("all", 1) in [4, 8, 12, 14]:
+                    mbot2.straight(2)
+                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [15, 14, 7]:
+                        cyberpi.console.println("demis tours")
+                        mbot2.EM_turn(260, 50, "ALL")
+                        while not (mbuild.quad_rgb_sensor.is_line("R1",1)):
+                            mbot2.turn_right(30)
+                    else:
+                        mbot2.straight(2.5)
+                else:
+                    mbot2.straight(2)
+                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [15, 14, 7]:
+                        cyberpi.console.println("tourne à droite")
+                        mbot2.straight(8)
+                        mbot2.EM_turn(160, 50, "ALL")
+
+                        while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                            mbot2.turn_right(30)
+                    else:
+                        mbot2.straight(2.5)
+
+            elif mbuild.quad_rgb_sensor.get_green_sta("all", 1) in [4, 8, 12, 14] or mbuild.quad_rgb_sensor.get_cyan_sta("all", 1) in [4, 8, 12, 14]:
+                mbot2.drive_power(0, 0)
+                mbot2.straight(-.5)
+                
+                
+                if mbuild.quad_rgb_sensor.get_green_sta("all", 1) in [1, 2, 3, 7] or mbuild.quad_rgb_sensor.get_cyan_sta("all", 1) in [1, 2, 3, 7]:
+                    mbot2.straight(2)
+                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [15, 14, 7]:
+                        cyberpi.console.println("demis tours")
+                        mbot2.EM_turn(260, 50, "ALL")
+                        while not (mbuild.quad_rgb_sensor.is_line("R1",1)):
+                            mbot2.turn_right(30)
+                    else:
+                        mbot2.straight(2.5)
+                else:
+                    mbot2.straight(2)
+                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [15, 14, 7]:
+                        cyberpi.console.println("tourne à gauche")
+                        mbot2.straight(8)
+                        mbot2.EM_turn(-160, 50, "ALL")
+
+                        #rotation jusqu'à croisement d'une ligne
+                        while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                            mbot2.turn_right(-30)
+                    else:
+                        mbot2.straight(2.5)
+
+        elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0: 
+            if mbuild.quad_rgb_sensor.get_red_sta("all", 1) != 15:
+                #il recule pour récuperer des informations sur la ligne
+                while mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
+                    mbot2.forward(-20)
+
+                  #si virage a droite
+            if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [1, 3, 7]:
+                      #Il se met en postion et tourne jusqu'à croiser une ligne
+                mbot2.straight(6)
+                mbot2.turn(20)
+                while not (mbuild.quad_rgb_sensor.is_line("R1",1)):
+                    mbot2.turn_right(20)
+
+                  #si virage à gauche
+            elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [14, 12, 8]:
+                mbot2.straight(6)
+                mbot2.turn(-20)
+                while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                    mbot2.turn_left(20)
+
+
+            #si pointillés
+            elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [2, 4, 6]:                    
+                mbot2.straight(10)
+                grand += 1
+
+                if grand == 2:
+                    mbot2.straight(-6)
+
+                    grand = 0
+                    temp = find_around_me()
+                    
+                    cyberpi.console.println(temp)
+                    if temp == "sur la ligne":
+                        cyberpi.console.println("ne continue pas")
+                        continue
+                    else:
+                        mbot2.straight(9)
+                        temp = find_around_me()
+                    
+                        cyberpi.console.println(temp)
+                        if temp == "sur la ligne":
+                            cyberpi.console.println("ne continue pas")
+                            continue
+                        else:
+                            if mbuild.ranging_sensor.get_distance(1) < 100 and mbuild.ranging_sensor.get_distance(2) < 100:
+                                cyberpi.console.println("zone possible")
+                
+                        
+                        
+                        
+                                
+            elif mbuild.quad_rgb_sensor.get_red_sta("all", 1) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ,12 ,13 ,14 ,15 ]: 
+                cyberpi.led.on(255, 0, 0, "all")
+                mbot2.straight(0)
+                time.sleep(15)
+
+
+ #detection d'obstacles 
+        # elif mbuild.ultrasonic2.get(1) < 9:
+
+        #     mbot2.turn(90)
+        #     while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+        #         mbot2.drive_speed(25, -48)
+        #     mbot2.straight(5)
+        #     while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+        #         mbot2.turn_right(30)
+
+
+
+        
+        else:
+            #sinon il suit la ligne grâce à une valeur entre -100 et 100 avec laquel ont determine une
+            #vitesse en pourcentage pour chaque moteur
+            vitesse_gauche = (vitesse - kp * mbuild.quad_rgb_sensor.get_offset_track(1))
+            vitesse_droite = -1 * ((vitesse + kp * mbuild.quad_rgb_sensor.get_offset_track(1)))
+            mbot2.drive_power(vitesse_gauche, vitesse_droite)
+            grand = 0
