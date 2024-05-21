@@ -1,0 +1,100 @@
+import event, time, cyberpi, mbot2, mbuild
+
+droite = 0
+gauche = 0
+zone = True
+
+def sortie():
+    global zone
+    if (mbuild.quad_rgb_sensor.is_color("yellow","R1",1)) or (mbuild.quad_rgb_sensor.is_color("green","R2",1)) or (mbuild.quad_rgb_sensor.is_color("green","L1",1)) or (mbuild.quad_rgb_sensor.is_color("green","L2",1)):
+        cyberpi.console.println("find")
+        mbot2.straight(5)
+        if mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
+            t = False
+            for i in range(4):
+                if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
+                    mbot2.straight(10)
+                    while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                        mbot2.turn_right(30)
+                    t = True
+                    break
+                else:
+                    mbot2.turn(15)
+            if t == False:
+                mbot2.turn(-90)
+                for i in range(4):
+                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
+                        mbot2.straight(10)
+                        while not (mbuild.quad_rgb_sensor.is_line("R1",1)):
+                            mbot2.turn_left(30)
+                        break
+                    else:
+                        mbot2.turn(-15)
+        zone = False
+
+
+@event.is_press('up')
+def is_joy_press():
+    global droite, gauche, zone
+    zone = True
+    while zone:        
+        if mbuild.ultrasonic2.get(2) > 50:
+            if mbuild.ultrasonic2.get(1) > 150:
+                cyberpi.console.println("devant")
+                for i in range(7):
+                    mbot2.straight(2)
+                    sortie()
+                    if zone == False or mbuild.ranging_sensor.get_distance(1) >= 200:
+                        break
+                if zone == True:
+                    mbot2.straight(-30)
+                    mbot2.EM_turn(255, 50, "ALL")
+                    mbot2.straight(15)
+            else:
+                cyberpi.console.println("gauche")
+                mbot2.straight(15)
+                mbot2.EM_turn(-255, 50, "ALL")
+                for i in range(7):
+                    mbot2.straight(2)
+                    sortie()
+                    if zone == False:
+                        break
+                if zone == True:
+                    mbot2.straight(-30)
+                    mbot2.EM_turn(255, 50, "ALL")
+                    mbot2.straight(15)
+                
+                    
+                    
+        elif  mbuild.ultrasonic2.get(1) < 8:
+            mbot2.EM_turn(255, 50, "ALL")
+        elif mbuild.ultrasonic2.get(2) < 5:
+            droite = 20
+            gauche = 27
+        elif mbuild.ultrasonic2.get(2) < 8:
+            droite = 20
+            gauche = 25
+        elif mbuild.ultrasonic2.get(2) < 11:
+            droite = 20
+            gauche = 22
+        
+        elif mbuild.ultrasonic2.get(2) > 17:
+            droite = 27
+            gauche = 20
+        elif mbuild.ultrasonic2.get(2) > 14:
+            droite = 25
+            gauche = 20
+        elif mbuild.ultrasonic2.get(2) > 12:
+            droite = 22
+            gauche = 20
+        else:
+            droite = 30
+            gauche = 30
+        mbot2.drive_speed(gauche, -droite)
+
+        
+
+@event.is_press('down')
+def is_joy_press1():
+    global droite, gauche
+    cyberpi.stop_all()
