@@ -103,17 +103,22 @@ def is_joy_press1():
                             mbot2.turn_right(-30)
                     else:
                         mbot2.straight(2.5)
-
+# Ci-dessous il y a le code grand
         elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0: 
-            if mbuild.quad_rgb_sensor.get_red_sta("all", 1) != 15:
+            
                 #il recule pour récuperer des informations sur la ligne
-                while mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
-                    mbot2.forward(-20)
-            mbot2.straight(-0.6)
-                
+            while mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
+                mbot2.forward(-20)
+            mbot2.straight(-0.8)
+            
+            # si il voit du rouge
+            if mbuild.quad_rgb_sensor.get_red_sta("all", 1) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ,12 ,13 ,14 ,15 ]: 
+                cyberpi.led.on(255, 0, 0, "all")
+                mbot2.straight(0)
+                time.sleep(15)
 
                   #si virage a droite
-            if mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [1, 3, 7]:
+            elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [1, 3, 7]:
                       #Il se met en postion et tourne jusqu'à croiser une ligne
                 mbot2.straight(6)
                 mbot2.turn(20)
@@ -131,36 +136,38 @@ def is_joy_press1():
             #si pointillés
             elif mbuild.quad_rgb_sensor.get_line_sta("all", 1) in [2, 4, 6]:                    
                 mbot2.straight(10)
+                
                 grand += 1
-
-                if grand == 2:
-                    mbot2.straight(-6)
+                if grand > 1:
                     grand = 0
-                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
-                        t = False
+                    # variable qui permet de savoir si on a trouver une ligne dans la recherche de ligne
+                    a_trouver_une_ligne = False
+                    while mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
+                        mbot2.forward(-20)
+                    mbot2.straight(3)
+                    
+                    for i in range(4):
+                        if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
+                            cyberpi.console.println("LIGNE PUTAIN")
+                            a_trouver_une_ligne = True
+                            break
+                        else:
+                            mbot2.turn(20)
+                    
+                    if  not a_trouver_une_ligne:
+                        mbot2.turn(-80)
+                        
                         for i in range(4):
                             if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
-                                mbot2.straight(4)
-                                t = True
+                                cyberpi.console.println("LIGNE PUTAIN")
+                                a_trouver_une_ligne = True
                                 break
+                                
+                            
                             else:
-                                mbot2.turn(20)
-                        if t == False:
-                            if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
-                                mbot2.turn(-80)
-                                for i in range(4):
-                                    if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
-                                        mbot2.straight(4)
-                                        break
-                                    else:
-                                        mbot2.turn(-20)
-                        elif t == False:
-                            if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
-                                mbot2.turn(80)
-            elif mbuild.quad_rgb_sensor.get_red_sta("all", 1) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ,12 ,13 ,14 ,15 ]: 
-                cyberpi.led.on(255, 0, 0, "all")
-                mbot2.straight(0)
-                time.sleep(15)
+                                mbot2.turn(-20)
+                    if not a_trouver_une_ligne:
+                        mbot2.turn(80)
 
 
 
