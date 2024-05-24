@@ -168,7 +168,13 @@ def is_joy_press1():
                                 mbot2.turn(-20)
                     if not a_trouver_une_ligne:
                         mbot2.turn(80)
-
+                        
+                        mbot2.straight(10)
+                        
+                        if mbuild.ranging_sensor.get_distance(1) < 100 and mbuild.ranging_sensor.get_distance(2) < 100:
+                            cyberpi.console.println("zone possible")
+                        else:
+                            cyberpi.console.println("je suis perdueeee, inoxtag tu manque a la terre entière")
 
 
 
