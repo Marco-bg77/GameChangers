@@ -1,0 +1,44 @@
+import cyberpi, mbuild
+
+def hex_to_rgb(hex_color):
+    # Enlève le préfixe '0x' si présent
+    if hex_color.startswith('0x'):
+        hex_color = hex_color[2:]
+        
+    
+    # Convertit le code hexadécimal en valeurs RGB
+    r = int(hex_color[0:2], 16)  # Convertit en entier en base 16
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    
+    return r, g, b
+
+def detect_color(hex_color):
+    r, g, b = hex_to_rgb(hex_color)
+    
+    red_threshold = 200  # ajustez selon vos besoins
+    rgb_threshold = 40   # ajustez selon vos besoins
+
+    # Vérifie si le niveau de rouge est suffisamment élevé pour être considéré comme rouge
+    if r > red_threshold:
+        # Vérifie si les canaux RVB sont suffisamment différents pour être considérés comme une couleur distincte
+        if abs(r - g) > rgb_threshold or abs(r - b) > rgb_threshold:
+            return "rouge"
+    
+    # Seuil pour le niveau de vert et la différence entre les canaux RVB
+    green_threshold = 100  # ajustez selon vos besoins
+
+    # Vérifie si le niveau de vert est suffisamment élevé pour être considéré comme vert
+    if g > green_threshold:
+        # Vérifie si les canaux RVB sont suffisamment différents pour être considérés comme une couleur distincte
+        if abs(g - r) > rgb_threshold or abs(g - b) > rgb_threshold:
+            return "verte"
+    
+    # Si aucune des conditions ci-dessus n'est remplie, ce n'est pas du rouge ni du vert
+    return "no se"
+
+while True:
+        
+    l2 = mbuild.quad_rgb_sensor.get_color("L2")
+    
+    cyberpi.console.println(detect_color(l2))
