@@ -11,6 +11,31 @@ gauche = 0
 droite = 0
 
 i = 0
+def chercher_zone():
+    global i
+    while i == 0:
+        while mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.forward(25)
+    
+        while mbuild.smart_camera.detect_sign_location(1, 'left', 1) or mbuild.smart_camera.detect_sign_location(1, 'left', 1) and mbuild.smart_camera.detect_sign_location(1, 'middle', 1) or mbuild.smart_camera.detect_sign_location(1, 'left', 1) and mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.turn_left(7)
+
+        while mbuild.smart_camera.detect_sign_location(1, 'right', 1) or mbuild.smart_camera.detect_sign_location(1, 'right', 1) and mbuild.smart_camera.detect_sign_location(1, 'middle', 1) or mbuild.smart_camera.detect_sign_location(1, 'right', 1) and mbuild.smart_camera.detect_sign_location(1, 'up', 1):
+            mbot2.turn_right(7)
+        
+
+        if mbuild.smart_camera.detect_sign_location(1, 'middle', 1):
+            mbot2.straight(13)
+            if i == 0:
+                mbot2.servo_set(0,"S3")
+                time.sleep(.5)
+                for i in range(15):
+                    mbot2.forward(100, .05)
+                    mbot2.forward(-110, .05)
+                mbot2.forward(-110, .05)
+                i += 1
+    mbot2.EM_stop("ALL")
+
 
 #script qui permet d'afficher a l'écran une interface utilisateur
 @event.start
