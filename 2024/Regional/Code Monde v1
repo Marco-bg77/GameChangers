@@ -239,6 +239,15 @@ def is_joy_press1():
 
  #detection d'obstacles 
 
+        elif mbuild.ultrasonic2.get(1) < 9:
+            mbot2.straight(3)
+            if mbuild.quad_rgb_sensor.get_line_sta("all", 1) != 0:
+                    mbot2.turn(90)
+                    while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                        mbot2.drive_speed(25, -48)
+                    mbot2.straight(5)
+                    while not (mbuild.quad_rgb_sensor.is_line("L1",1)):
+                        mbot2.turn_right(30)
         
         else:
             #sinon il suit la ligne grâce à une valeur entre -100 et 100 avec laquel ont determine une
