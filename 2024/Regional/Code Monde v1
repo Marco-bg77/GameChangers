@@ -213,24 +213,24 @@ def is_joy_press1():
                                 cyberpi.console.println("zone lesss go")
 				# 1 = droite / 2 = gauche
 
-                                while not mbuild.ranging_sensor.get_distance(1) < 100 or mbuild.ranging_sensor.get_distance(2) < 100 or mbuild.ultrasonic2.get(1) < 20:
-                                    mbot2.forward(50)
-
-				if mbuild.ranging_sensor.get_distance(1) < 100:
-					# tourner droite
-				    mbot2.turn(90)
-				    while not mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 15:
+                                while mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 0:
                                 	mbot2.forward(50)
 
-				if mbuild.ranging_sensor.get_distance(2) < 100:
-					# tourner gauche
-				   mbot2.turn(-90)
-				   while not mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 15:
-                                	mbot2.forward(50)
+					if mbuild.ranging_sensor.get_distance(1) < 100:
+							# tourner droite
+				    		mbot2.turn(90)
+				    		while not mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 15:
+                                			mbot2.forward(50)
 
-				if mbuild.ultrasonic2.get(1) < 20:
-					# tourner droite
-				   mbot2.turn(90)
+					if mbuild.ranging_sensor.get_distance(2) < 100:
+							# tourner gauche
+				   		mbot2.turn(-90)
+				   		while not mbuild.quad_rgb_sensor.get_line_sta("all", 1) == 15:
+                                			mbot2.forward(50)
+
+					if mbuild.ultrasonic2.get(1) < 30:
+						# tourner droite
+				   		mbot2.turn(90)
 
                             else:
                                 cyberpi.console.println("inoxtag tu manque a la terre entière")
